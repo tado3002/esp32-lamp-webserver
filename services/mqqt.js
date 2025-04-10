@@ -27,15 +27,16 @@ class MqqtService {
     });
   }
 
-  switch() {
+  async switch() {
     const status = this.lampuState === "OFF" ? "ON" : "OFF";
+    console.log("state lampu sebelum:", this.lampuState);
     this.client.publish("esp32/gpio4", status, () => {
       console.log(`Perintah dikirim: ${status}`);
     });
-    console.log("state lampu", this.lampuState);
+    console.log("state lampu setelah:", this.lampuState);
   }
 
-  getState() {
+  async getState() {
     this.message();
     return this.lampuState;
   }

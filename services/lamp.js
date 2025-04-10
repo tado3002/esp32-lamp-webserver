@@ -3,12 +3,12 @@ class LampService {
     this.mqqtService = require("./mqqt");
   }
 
-  get() {
-    return this.mqqtService.getState();
+  async get() {
+    return await this.mqqtService.getState();
   }
 
-  switch() {
-    this.mqqtService.switch();
+  async switch() {
+    await this.mqqtService.switch();
   }
 }
 module.exports = new LampService();

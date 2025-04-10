@@ -2,9 +2,12 @@ class LampController {
   constructor() {
     this.lampService = require("../services/lamp");
   }
-
-  get(req, res) {
-    const result = this.lampService.get();
+  /**
+   * @param {Request} req The date
+   * @param {Response} res The string
+   */
+  async get(req, res) {
+    const result = await this.lampService.get();
     res.json({ result });
   }
 
@@ -12,9 +15,9 @@ class LampController {
    * @param {Request} req The date
    * @param {Response} res The string
    */
-  switch(req, res) {
-    this.lampService.switch();
-    res.json({ message: "OK" });
+  async switch(req, res) {
+    await this.lampService.switch();
+    await this.get(req, res);
   }
 }
 

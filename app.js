@@ -6,9 +6,12 @@ var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
 var lampRouter = require("./routes/lamp");
+const apiKeyMiddleware = require("./middleware/apiKeyMiddleware");
+
+// run api key generator
+require("./lib/generateApiKey.js");
 
 var app = express();
-
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
@@ -18,6 +21,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+// api key middleware
+app.use(apiKeyMiddleware);
 
 app.use("/", indexRouter);
 app.use("/lamp", lampRouter);
