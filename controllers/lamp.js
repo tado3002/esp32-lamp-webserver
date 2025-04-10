@@ -8,7 +8,7 @@ class LampController {
    */
   async get(req, res) {
     const result = await this.lampService.get();
-    res.json({ result });
+    res.json({ data: { result } });
   }
 
   /**
