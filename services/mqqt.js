@@ -33,6 +33,7 @@ class MqqtService {
     this.client.publish("esp32/gpio4", status, () => {
       console.log(`Perintah dikirim: ${status}`);
     });
+    this.lampuState = status;
     console.log("state lampu setelah:", this.lampuState);
   }
 
