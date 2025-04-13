@@ -12,6 +12,15 @@ const apiKeyMiddleware = require("./middleware/apiKeyMiddleware");
 require("./lib/generateApiKey.js");
 
 var app = express();
+
+// cors
+var cors = require("cors");
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  }),
+);
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
