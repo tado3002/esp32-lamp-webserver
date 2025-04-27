@@ -1,45 +1,94 @@
-class MqqtService {
-  // Variabel untuk menyimpan status lampu
-  lampuState = "OFF";
+const mqtt = require("mqtt");
+
+class MqttService {
+  lampState = {
+    gpio2: "OFF",
+    gpio16: "OFF",
+  };
 
   constructor() {
-    this.mqtt = require("mqtt");
-    this.client = this.mqtt.connect(`mqtt://5.196.78.28`);
-    this.connect();
-    this.message();
+    this.client = mqtt.connect("mqtt://mqtt.eclipsegate.my.id");
+    this.setupConnection();
   }
 
-  connect() {
-    console.log("Trying to connect MQQT...");
+  setupConnection() {
+    console.log("Connecting to MQTT broker...");
+
     this.client.on("connect", () => {
-      this.client.subscribe("esp32/gpio4/state"); // Subscribe ke status lampu dari ESP32
       console.log("Connected to MQTT broker");
+      this.subscribeTopics();
     });
-  }
 
-  // Menerima pesan dari ESP32
-  message() {
+    this.client.on("error", (err) => {
+      console.error("MQTT connection error:", err);
+    });
+
     this.client.on("message", (topic, message) => {
-      if (topic === "esp32/gpio4/state") {
-        this.lampuState = message.toString();
-        console.log(`Lampu sekarang: ${this.lampuState}`);
-      }
+      this.handleMessage(topic, message.toString());
     });
   }
 
-  async switch() {
-    const status = this.lampuState === "OFF" ? "ON" : "OFF";
-    console.log("state lampu sebelum:", this.lampuState);
-    this.client.publish("esp32/gpio4", status, () => {
-      console.log(`Perintah dikirim: ${status}`);
+  subscribeTopics() {
+    const topics = ["esp32/gpio2/state", "esp32/gpio16/state"];
+    topics.forEach((topic) => {
+      this.client.subscribe(topic, (err) => {
+        if (err) {
+          console.error(`Failed to subscribe to ${topic}:`, err);
+        } else {
+          console.log(`Subscribed to topic: ${topic}`);
+        }
+      });
     });
-    this.lampuState = status;
-    console.log("state lampu setelah:", this.lampuState);
+  }
+
+  handleMessage(topic, message) {
+    console.log(`Received message from ${topic}: ${message}`);
+    this.updateStateByTopic(topic, message);
+  }
+
+  publish(topic, message) {
+    return new Promise((resolve, reject) => {
+      this.client.publish(topic, message, (err) => {
+        if (err) {
+          console.error("Publish error:", err);
+          return reject(err);
+        }
+        console.log(`Message "${message}" published to "${topic}"`);
+        resolve();
+      });
+    });
+  }
+
+  async switch(topic) {
+    const currentState = this.getStateByTopic(topic);
+    const newState = currentState === "OFF" ? "ON" : "OFF";
+
+    await this.publish(topic, newState);
+    console.log(`[${topic}] Switch command sent: ${newState}`);
   }
 
   async getState() {
-    this.message();
-    return this.lampuState;
+    await this.publish("esp32/gpio2/get", "");
+    await this.publish("esp32/gpio16/get", "");
+    return this.lampState;
+  }
+
+  updateStateByTopic(topic, message) {
+    if (topic === "esp32/gpio2/state") {
+      this.lampState.gpio2 = message;
+    } else if (topic === "esp32/gpio16/state") {
+      this.lampState.gpio16 = message;
+    }
+  }
+
+  getStateByTopic(topic) {
+    if (topic === "esp32/gpio2") {
+      return this.lampState.gpio2;
+    } else if (topic === "esp32/gpio16") {
+      return this.lampState.gpio16;
+    }
+    return null;
   }
 }
-module.exports = new MqqtService();
+
+module.exports = new MqttService();
