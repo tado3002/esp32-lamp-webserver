@@ -8,7 +8,7 @@ const lampController = require("../controllers/lamp");
 router.get("/", function (req, res, next) {
   return lampController.get(req, res);
 });
-router.get("/switch", function (req, res, next) {
+router.get("/switch/:topic", function (req, res, next) {
   return lampController.switch(req, res);
 });
 

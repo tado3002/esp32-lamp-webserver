@@ -7,8 +7,8 @@ class LampService {
     return await this.mqqtService.getState();
   }
 
-  async switch() {
-    await this.mqqtService.switch();
+  async switch(topic) {
+    await this.mqqtService.switch(topic);
   }
 }
 module.exports = new LampService();
