@@ -8,7 +8,13 @@ class LampController {
    */
   async get(req, res) {
     const result = await this.lampService.get();
-    res.json({ data: { result } });
+    const data = Object.entries(result).map((lamp) =>
+      Object({
+        topic: lamp[0],
+        state: lamp[1],
+      }),
+    );
+    res.json({ data });
   }
 
   /**
@@ -16,7 +22,8 @@ class LampController {
    * @param {Response} res The string
    */
   async switch(req, res) {
-    await this.lampService.switch();
+    const topic = req.params.topic;
+    await this.lampService.switch(topic);
     await this.get(req, res);
   }
 }
