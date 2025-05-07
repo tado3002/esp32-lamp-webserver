@@ -63,8 +63,9 @@ class MqttService {
     const currentState = this.getStateByTopic(topic);
     const newState = currentState === "OFF" ? "ON" : "OFF";
 
-    await this.publish(topic, newState);
+    await this.publish("esp32/" + topic, newState);
     console.log(`[${topic}] Switch command sent: ${newState}`);
+    this.updateStateByTopic(`esp32/${topic}/state`, newState);
   }
 
   async getState() {
@@ -82,9 +83,9 @@ class MqttService {
   }
 
   getStateByTopic(topic) {
-    if (topic === "esp32/gpio2") {
+    if (topic === "gpio2") {
       return this.lampState.gpio2;
-    } else if (topic === "esp32/gpio16") {
+    } else if (topic === "gpio16") {
       return this.lampState.gpio16;
     }
     return null;
